@@ -1,30 +1,54 @@
+def input_error(func):
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ValueError:
+            return "Give me name and phone please."
+        except KeyError:
+            return "Contact not found."
+        except IndexError:
+            return "Enter the argument for the command."
+    return inner
+
 def parse_input(user_input):
     cmd, *args = user_input.split()
     cmd = cmd.lower()
     return cmd, args
 
+@input_error
 def add_contact(args, contacts):
+    if len(args) != 2:
+        raise ValueError
+
     name, phone = args
     contacts[name] = phone
     return "Contact added."
 
+@input_error
 def change_contact(args, contacts):
+    if len(args) != 2:
+        raise ValueError
+
     name, phone = args
 
-    if name in contacts:
-        contacts[name] = phone
-        return "Contact updated."
-    else:
-        return "Contact not found."
+    if name not in contacts:
+        raise KeyError
 
+    contacts[name] = phone
+    return "Contact updated."
+
+@input_error
 def show_phone(args, contacts):
+    if len(args) != 1:
+        raise IndexError
+
     name = args[0]
 
-    if name in contacts:
-        return contacts[name]
-    else:
-        return "Contact not found."
+    if name not in contacts:
+        raise KeyError
+    return contacts[name]
 
+@input_error
 def show_all(contacts):
     if not contacts:
         return "No contacts saved."
@@ -54,20 +78,11 @@ def main():
         elif command == "hello":
             print("How can I help you?")
         elif command == "add":
-            if len(args) != 2:
-                print("Invalid command.")
-            else:
-                print(add_contact(args, contacts))
+            print(add_contact(args, contacts))
         elif command == "change":
-            if len(args) != 2:
-                print("Invalid command.")
-            else:
-                print(change_contact(args, contacts))
+            print(change_contact(args, contacts))
         elif command == "phone":
-            if len(args) != 1:
-                print("Invalid command.")
-            else:
-                print(show_phone(args, contacts))
+            print(show_phone(args, contacts))
         elif command == "all":
             print(show_all(contacts))
         else:
